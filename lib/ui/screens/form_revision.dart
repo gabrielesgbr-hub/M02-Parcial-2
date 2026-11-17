@@ -63,6 +63,15 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
     return null;
   }
 
+  // GB usados: entre 0 y el total registrado en la ficha.
+  String? _validarGb(String? v) {
+    final total = _equipo.almacenamientoGb;
+    if (total == null) return 'Registra el almacenamiento total en la ficha del equipo';
+    final n = int.tryParse(v?.trim() ?? '');
+    if (n == null || n < 0 || n > total) return 'Ingresa un valor entre 0 y $total GB';
+    return null;
+  }
+
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     final campos = _equipo.tipo.camposRevision;
@@ -71,7 +80,7 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
       equipoId: _equipo.id!,
       fecha: DateTime.now(),
       limpieza: _limpieza,
-      almacenamientoPct: campos.contains(CampoRevision.almacenamientoPct)
+      almacenamientoUsadoGb: campos.contains(CampoRevision.almacenamientoUsado)
           ? int.parse(_almacenamiento.text.trim())
           : null,
       bateriaPct: campos.contains(CampoRevision.bateriaPct)
@@ -117,15 +126,16 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
               value: _limpieza,
               onChanged: (v) => setState(() => _limpieza = v),
             ),
-            if (campos.contains(CampoRevision.almacenamientoPct))
+            if (campos.contains(CampoRevision.almacenamientoUsado))
               TextFormField(
                 controller: _almacenamiento,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Almacenamiento usado (%)',
-                  helperText: 'Máx. recomendado 90%',
+                decoration: InputDecoration(
+                  labelText: 'Almacenamiento usado (GB)',
+                  helperText:
+                      'Total: ${_equipo.almacenamientoGb ?? '?'} GB · máx. recomendado 90%',
                 ),
-                validator: _validarPct,
+                validator: _validarGb,
               ),
             if (campos.contains(CampoRevision.bateriaPct))
               TextFormField(

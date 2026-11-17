@@ -11,12 +11,6 @@ class PantallaVidaUtil extends StatefulWidget {
 }
 
 class _PantallaVidaUtilState extends State<PantallaVidaUtil> {
-  // Años con 1 decimal solo si no es entero.
-  String _anios(int meses) {
-    final a = meses / 12;
-    return '${a == a.roundToDouble() ? a.toInt() : a.toStringAsFixed(1)} años';
-  }
-
   @override
   Widget build(BuildContext context) {
     final estilo = Theme.of(context).textTheme.titleMedium;
@@ -32,7 +26,7 @@ class _PantallaVidaUtilState extends State<PantallaVidaUtil> {
             ListTile(
               leading: Icon(t.icono),
               title: Text(t.etiqueta),
-              trailing: Text(_anios(t.vidaUtilMeses)),
+              trailing: Text('${t.vidaUtilMeses} meses'),
             ),
           const SizedBox(height: 16),
           Text('Accesorios', style: estilo),
@@ -40,7 +34,7 @@ class _PantallaVidaUtilState extends State<PantallaVidaUtil> {
             ListTile(
               leading: const Icon(Icons.cable),
               title: Text(a.etiqueta),
-              trailing: Text(_anios(a.vidaUtilMeses)),
+              trailing: Text('${a.vidaUtilMeses} meses'),
             ),
         ],
       ),

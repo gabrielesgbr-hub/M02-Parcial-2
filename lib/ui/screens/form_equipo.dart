@@ -95,9 +95,9 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
     }
   }
 
-  String? _validarEntero(String? v) {
+  String? _validarEntero(String? v, {bool obligatorio = false}) {
     final t = v?.trim() ?? '';
-    if (t.isEmpty) return null;
+    if (t.isEmpty) return obligatorio ? 'Este dato es obligatorio' : null;
     final n = int.tryParse(t);
     return n == null || n <= 0 ? 'Ingresa un entero positivo' : null;
   }
@@ -156,12 +156,13 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Widget _numero(TextEditingController c, String etiqueta) => TextFormField(
+  Widget _numero(TextEditingController c, String etiqueta, {bool obligatorio = false}) =>
+      TextFormField(
         controller: c,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(labelText: etiqueta),
-        validator: _validarEntero,
+        validator: (v) => _validarEntero(v, obligatorio: obligatorio),
       );
 
   @override
@@ -208,6 +209,9 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
               TextFormField(
                 controller: _serie,
                 decoration: const InputDecoration(labelText: 'Número de serie'),
+                validator: (v) => (v ?? '').trim().isEmpty
+                    ? 'El número de serie es obligatorio'
+                    : null,
               ),
             ],
             if (campos.contains(CampoFicha.procesador)) ...[
@@ -220,7 +224,7 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
             if (campos.contains(CampoFicha.ramGb)) ...[sep, _numero(_ram, 'RAM (GB)')],
             if (campos.contains(CampoFicha.almacenamientoGb)) ...[
               sep,
-              _numero(_almacenamiento, 'Almacenamiento (GB)'),
+              _numero(_almacenamiento, 'Almacenamiento total (GB)', obligatorio: true),
             ],
             sep,
             OutlinedButton.icon(

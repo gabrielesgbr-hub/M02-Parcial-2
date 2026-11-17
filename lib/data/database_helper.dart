@@ -52,7 +52,7 @@ class DatabaseHelper {
         equipo_id INTEGER NOT NULL REFERENCES equipos(id) ON DELETE CASCADE,
         fecha TEXT NOT NULL,
         limpieza INTEGER NOT NULL,
-        almacenamiento_pct INTEGER,
+        almacenamiento_usado_gb INTEGER,
         bateria_pct INTEGER,
         sobrecalentamiento INTEGER,
         mantenimiento INTEGER,

@@ -48,7 +48,7 @@ void main() {
       equipoId: 3,
       fecha: DateTime(2025, 1, 5),
       limpieza: false,
-      almacenamientoPct: 85,
+      almacenamientoUsadoGb: 85,
       sobrecalentamiento: true,
       mantenimiento: false,
       observaciones: 'Ventilador ruidoso',
@@ -57,7 +57,7 @@ void main() {
     expect(c.equipoId, 3);
     expect(c.fecha, DateTime(2025, 1, 5));
     expect(c.limpieza, isFalse);
-    expect(c.almacenamientoPct, 85);
+    expect(c.almacenamientoUsadoGb, 85);
     expect(c.bateriaPct, isNull);
     expect(c.sobrecalentamiento, isTrue);
     expect(c.mantenimiento, isFalse);

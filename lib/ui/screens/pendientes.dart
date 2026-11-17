@@ -23,7 +23,11 @@ class _PantallaPendientesState extends State<PantallaPendientes> {
     _futuro = cargarDatosEquipos();
   }
 
-  void _recargar() => setState(() => _futuro = cargarDatosEquipos());
+  void _recargar() {
+    setState(() {
+      _futuro = cargarDatosEquipos();
+    });
+  }
 
   Future<void> _abrirDetalle(Equipo equipo) async {
     await Navigator.pushNamed(context, Rutas.detalle, arguments: equipo);

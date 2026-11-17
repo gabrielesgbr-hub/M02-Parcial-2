@@ -14,6 +14,7 @@ import '../../models/tipo_equipo.dart';
 import '../../routes.dart';
 import '../../utils/fechas.dart';
 import '../widgets/alerta_chip.dart';
+import '../widgets/barra_indicador.dart';
 import '../widgets/dialogo_accesorio.dart';
 import '../widgets/foto_equipo.dart';
 
@@ -52,7 +53,11 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
     return (equipo, revisiones, accesorios);
   }
 
-  void _recargar() => setState(() => _futuro = _cargar());
+  void _recargar() {
+    setState(() {
+      _futuro = _cargar();
+    });
+  }
 
   void _mensaje(String texto) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
@@ -221,7 +226,7 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
           Text('Ficha técnica', style: tema.textTheme.titleMedium),
           ..._ficha(e),
           const Divider(height: 32),
-          ..._vidaUtil(e),
+          ..._indicadores(e, revisiones),
           const Divider(height: 32),
           Text('Alertas', style: tema.textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -288,32 +293,27 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
     ];
   }
 
-  String _edad(DateTime desde) {
-    final meses = (DateTime.now().difference(desde).inDays / 30.44).floor();
-    if (meses < 1) return 'menos de 1 mes';
-    final a = meses ~/ 12, m = meses % 12;
-    return [
-      if (a > 0) '$a ${a == 1 ? 'año' : 'años'}',
-      if (m > 0) '$m ${m == 1 ? 'mes' : 'meses'}',
-    ].join(' y ');
-  }
-
-  List<Widget> _vidaUtil(Equipo e) {
+  List<Widget> _indicadores(Equipo e, List<Revision> revisiones) {
     final pct = porcentajeVidaUtil(e.fechaCompra, e.tipo.vidaUtilMeses);
+    final c = e.tipo.camposRevision;
+    final usaRevision =
+        c.contains(CampoRevision.almacenamientoUsado) || c.contains(CampoRevision.bateriaPct);
     return [
-      Text('Vida útil', style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 8),
-      LinearProgressIndicator(value: pct.clamp(0.0, 1.0), minHeight: 8),
-      const SizedBox(height: 6),
-      Text('${etapaVida(pct).etiqueta} · edad: ${_edad(e.fechaCompra)} '
-          'de ${e.tipo.vidaUtilMeses} meses estimados'),
+      Text('Indicadores', style: Theme.of(context).textTheme.titleMedium),
+      Text('Etapa: ${etapaVida(pct).etiqueta}'),
+      for (final i in indicadores(e, revisiones)) BarraIndicador(indicador: i),
+      if (revisiones.isEmpty && usaRevision)
+        const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Text('Registra una revisión para ver almacenamiento y batería.'),
+        ),
     ];
   }
 
   String _resumen(Revision r) {
     final partes = <String>[
       r.limpieza ? 'Limpieza hecha' : 'Sin limpieza',
-      if (r.almacenamientoPct != null) 'Almac. ${r.almacenamientoPct}%',
+      if (r.almacenamientoUsadoGb != null) 'Almac. ${r.almacenamientoUsadoGb} GB',
       if (r.bateriaPct != null) 'Batería ${r.bateriaPct}%',
       if (r.sobrecalentamiento == true) 'Se calienta',
       if (r.mantenimiento == true) 'Mantenimiento',

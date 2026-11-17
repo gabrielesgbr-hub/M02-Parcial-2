@@ -2,11 +2,11 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../logic/estado_equipo.dart';
 
-// Verde = ok, ámbar = advertencia, rojo = crítica.
+// Verde = ok, naranja = advertencia, rojo = crítica (tonos legibles en tema oscuro).
 Color colorNivel(NivelAlerta nivel) => switch (nivel) {
-      NivelAlerta.ok => Colors.green,
-      NivelAlerta.advertencia => Colors.amber.shade800,
-      NivelAlerta.critica => Colors.red,
+      NivelAlerta.ok => Colors.green.shade400,
+      NivelAlerta.advertencia => Colors.orange,
+      NivelAlerta.critica => Colors.red.shade400,
     };
 
 class AlertaChip extends StatelessWidget {

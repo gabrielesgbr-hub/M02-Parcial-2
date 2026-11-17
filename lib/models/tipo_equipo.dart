@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 enum CampoFicha { numeroSerie, procesador, ramGb, almacenamientoGb }
 
 // Campos de la revisión que dependen del tipo (limpieza, observaciones y foto aplican a todos).
-enum CampoRevision { almacenamientoPct, bateriaPct, sobrecalentamiento, mantenimiento }
+enum CampoRevision { almacenamientoUsado, bateriaPct, sobrecalentamiento, mantenimiento }
 
 // Tipos fijos de accesorio con su vida útil en meses.
 enum TipoAccesorio {
@@ -50,7 +50,7 @@ enum TipoEquipo {
       CampoFicha.almacenamientoGb,
     },
     camposRevision: {
-      CampoRevision.almacenamientoPct,
+      CampoRevision.almacenamientoUsado,
       CampoRevision.bateriaPct,
       CampoRevision.sobrecalentamiento,
       CampoRevision.mantenimiento,
@@ -74,7 +74,7 @@ enum TipoEquipo {
       CampoFicha.almacenamientoGb,
     },
     camposRevision: {
-      CampoRevision.almacenamientoPct,
+      CampoRevision.almacenamientoUsado,
       CampoRevision.sobrecalentamiento,
       CampoRevision.mantenimiento,
     },
@@ -91,7 +91,7 @@ enum TipoEquipo {
     vidaUtilMeses: 42,
     camposFicha: {CampoFicha.numeroSerie, CampoFicha.almacenamientoGb},
     camposRevision: {
-      CampoRevision.almacenamientoPct,
+      CampoRevision.almacenamientoUsado,
       CampoRevision.bateriaPct,
       CampoRevision.sobrecalentamiento,
     },
@@ -108,7 +108,7 @@ enum TipoEquipo {
     vidaUtilMeses: 54,
     camposFicha: {CampoFicha.numeroSerie, CampoFicha.almacenamientoGb},
     camposRevision: {
-      CampoRevision.almacenamientoPct,
+      CampoRevision.almacenamientoUsado,
       CampoRevision.bateriaPct,
       CampoRevision.sobrecalentamiento,
     },

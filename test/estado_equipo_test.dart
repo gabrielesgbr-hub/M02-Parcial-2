@@ -6,9 +6,11 @@ import 'package:m02_parcial2/models/tipo_equipo.dart';
 
 final ahora = DateTime(2025, 6, 1);
 
-Equipo equipo(TipoEquipo tipo, {DateTime? compra}) => Equipo(
+// Total de 100 GB: los GB usados equivalen al porcentaje.
+Equipo equipo(TipoEquipo tipo, {DateTime? compra, int? totalGb = 100}) => Equipo(
       tipo: tipo,
       nombre: 'x',
+      almacenamientoGb: totalGb,
       fechaCompra: compra ?? DateTime(2025, 5, 1),
       creadoEn: ahora,
     );
@@ -17,7 +19,7 @@ Revision rev({DateTime? fecha, int? alm, int? bat, bool? sobre, bool? mant}) => 
       equipoId: 1,
       fecha: fecha ?? ahora,
       limpieza: true,
-      almacenamientoPct: alm,
+      almacenamientoUsadoGb: alm,
       bateriaPct: bat,
       sobrecalentamiento: sobre,
       mantenimiento: mant,
@@ -54,16 +56,24 @@ void main() {
   group('alertas', () {
     final cel = equipo(TipoEquipo.celular);
 
-    test('almacenamiento 90 no, 91 crítica', () {
-      expect(calcularAlertas(cel, [rev(alm: 90)], ahora: ahora), isEmpty);
+    test('almacenamiento: 84 no, 85-90 advertencia, 91 crítica', () {
+      expect(calcularAlertas(cel, [rev(alm: 84)], ahora: ahora), isEmpty);
+      expect(calcularAlertas(cel, [rev(alm: 90)], ahora: ahora).single.nivel, NivelAlerta.advertencia);
       final a = calcularAlertas(cel, [rev(alm: 91)], ahora: ahora);
       expect(a.single.nivel, NivelAlerta.critica);
       expect(a.single.mensaje, contains('91%'));
     });
 
-    test('batería 80 no, 79 advertencia', () {
+    test('almacenamiento se calcula contra el total', () {
+      final c = equipo(TipoEquipo.celular, totalGb: 256);
+      expect(porcentajeAlmacenamiento(c, rev(alm: 230)), 90);
+      expect(porcentajeAlmacenamiento(equipo(TipoEquipo.celular, totalGb: null), rev(alm: 10)), isNull);
+    });
+
+    test('batería: 80 no, 60-79 advertencia, 59 crítica', () {
       expect(calcularAlertas(cel, [rev(bat: 80)], ahora: ahora), isEmpty);
-      expect(calcularAlertas(cel, [rev(bat: 79)], ahora: ahora).single.nivel, NivelAlerta.advertencia);
+      expect(calcularAlertas(cel, [rev(bat: 60)], ahora: ahora).single.nivel, NivelAlerta.advertencia);
+      expect(calcularAlertas(cel, [rev(bat: 59)], ahora: ahora).single.nivel, NivelAlerta.critica);
     });
 
     test('sobrecalentamiento', () {
@@ -94,9 +104,36 @@ void main() {
       expect(calcularAlertas(c, [], ahora: ahora), isEmpty);
     });
 
-    test('vida útil superada', () {
+    test('vida útil: cerca del fin (advertencia) y superada (crítica)', () {
+      // Reloj: 42 meses ≈ 1278 días.
+      final cerca = calcularAlertas(equipo(TipoEquipo.reloj, compra: haceDias(1100)), [], ahora: ahora);
+      expect(cerca.single.nivel, NivelAlerta.advertencia);
+      final fin = calcularAlertas(equipo(TipoEquipo.reloj, compra: haceDias(1300)), [], ahora: ahora);
+      expect(fin.single.nivel, NivelAlerta.critica);
+      expect(fin.single.mensaje, 'Superó su vida útil estimada');
+    });
+  });
+
+  group('indicadores', () {
+    test('cortes de vida útil', () {
+      expect(nivelVidaUtil(0.84), NivelAlerta.ok);
+      expect(nivelVidaUtil(0.85), NivelAlerta.advertencia);
+      expect(nivelVidaUtil(1.0), NivelAlerta.critica);
+    });
+
+    test('vida útil en meses y barra llena al pasarse', () {
       final r = equipo(TipoEquipo.reloj, compra: haceDias(1300));
-      expect(calcularAlertas(r, [], ahora: ahora).single.mensaje, 'Superó su vida útil estimada');
+      final i = indicadores(r, [], ahora: ahora).single;
+      expect(i.texto, '42 de 42 meses');
+      expect(i.valor, 1.0);
+    });
+
+    test('sin revisiones solo vida útil; con revisión agrega almacenamiento y batería', () {
+      final t = equipo(TipoEquipo.tablet);
+      expect(indicadores(t, [], ahora: ahora).length, 1);
+      final lista = indicadores(t, [rev(alm: 50, bat: 70)], ahora: ahora);
+      expect(lista.map((i) => i.etiqueta), ['Vida útil', 'Almacenamiento', 'Batería']);
+      expect(indicadorMasPreocupante(lista).etiqueta, 'Batería');
     });
   });
 

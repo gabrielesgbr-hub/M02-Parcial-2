@@ -21,7 +21,10 @@ class MisEquiposApp extends StatelessWidget {
       title: 'Mis Equipos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.teal,
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
       initialRoute: Rutas.inicio,

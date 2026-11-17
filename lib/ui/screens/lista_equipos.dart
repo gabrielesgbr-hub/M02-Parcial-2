@@ -13,8 +13,7 @@ typedef DatosEquipos = (List<Equipo>, Map<int, List<Revision>>);
 // Carga equipos y sus revisiones en un solo Future (también lo usa Pendientes).
 Future<DatosEquipos> cargarDatosEquipos() async {
   final equipos = await EquipoRepository().obtenerTodos();
-  final revisiones = await RevisionRepository().obtenerAgrupadasPorEquipo();
-  return (equipos, revisiones);
+  final revisiones = await RevisionRepository().obtenerAgrupadasPorEquipo();  return (equipos, revisiones);
 }
 
 // Inicio: lista de equipos con Drawer.
@@ -34,7 +33,12 @@ class _PantallaListaEquiposState extends State<PantallaListaEquipos> {
     _futuro = cargarDatosEquipos();
   }
 
-  void _recargar() => setState(() => _futuro = cargarDatosEquipos());
+  // Con llaves: setState no debe recibir un callback que devuelva un Future.
+  void _recargar() {
+    setState(() {
+      _futuro = cargarDatosEquipos();
+    });
+  }
 
   Future<void> _agregar() async {
     final guardo = await Navigator.pushNamed(context, Rutas.formEquipo);

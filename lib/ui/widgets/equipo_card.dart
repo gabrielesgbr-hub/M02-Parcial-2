@@ -4,6 +4,7 @@ import '../../logic/estado_equipo.dart';
 import '../../models/equipo.dart';
 import '../../models/revision.dart';
 import 'alerta_chip.dart';
+import 'barra_indicador.dart';
 import 'foto_equipo.dart';
 
 class EquipoCard extends StatelessWidget {
@@ -33,6 +34,10 @@ class EquipoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(detalle),
+            BarraIndicador(
+              indicador: indicadorMasPreocupante(indicadores(equipo, revisiones)),
+              compacta: true,
+            ),
             if (revisionPendiente(revisiones))
               Text(
                 'Revisión pendiente',

@@ -4,7 +4,7 @@ class Revision {
   final int equipoId;
   final DateTime fecha;
   final bool limpieza;
-  final int? almacenamientoPct;
+  final int? almacenamientoUsadoGb;
   final int? bateriaPct;
   final bool? sobrecalentamiento;
   final bool? mantenimiento;
@@ -16,7 +16,7 @@ class Revision {
     required this.equipoId,
     required this.fecha,
     required this.limpieza,
-    this.almacenamientoPct,
+    this.almacenamientoUsadoGb,
     this.bateriaPct,
     this.sobrecalentamiento,
     this.mantenimiento,
@@ -29,7 +29,7 @@ class Revision {
         'equipo_id': equipoId,
         'fecha': fecha.toIso8601String(),
         'limpieza': limpieza ? 1 : 0,
-        'almacenamiento_pct': almacenamientoPct,
+        'almacenamiento_usado_gb': almacenamientoUsadoGb,
         'bateria_pct': bateriaPct,
         'sobrecalentamiento': _boolAInt(sobrecalentamiento),
         'mantenimiento': _boolAInt(mantenimiento),
@@ -42,7 +42,7 @@ class Revision {
         equipoId: map['equipo_id'] as int,
         fecha: DateTime.parse(map['fecha'] as String),
         limpieza: map['limpieza'] == 1,
-        almacenamientoPct: map['almacenamiento_pct'] as int?,
+        almacenamientoUsadoGb: map['almacenamiento_usado_gb'] as int?,
         bateriaPct: map['bateria_pct'] as int?,
         sobrecalentamiento: _intABool(map['sobrecalentamiento']),
         mantenimiento: _intABool(map['mantenimiento']),
