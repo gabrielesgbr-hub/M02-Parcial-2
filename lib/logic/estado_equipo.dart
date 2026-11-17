@@ -25,7 +25,11 @@ enum EtapaVida {
 }
 
 // Edad / vida útil (0.0 = nuevo, 1.0 = vida útil cumplida; puede pasar de 1).
-double porcentajeVidaUtil(DateTime fechaCompra, int vidaUtilMeses, {DateTime? ahora}) {
+double porcentajeVidaUtil(
+  DateTime fechaCompra,
+  int vidaUtilMeses, {
+  DateTime? ahora,
+}) {
   final dias = (ahora ?? DateTime.now()).difference(fechaCompra).inDays;
   if (dias <= 0) return 0;
   return dias / (vidaUtilMeses * 30.44);
@@ -53,14 +57,17 @@ int? porcentajeAlmacenamiento(Equipo equipo, Revision revision) {
 }
 
 // Cortes de color de los indicadores.
-NivelAlerta nivelVidaUtil(double p) =>
-    p >= 1.0 ? NivelAlerta.critica : (p >= 0.85 ? NivelAlerta.advertencia : NivelAlerta.ok);
+NivelAlerta nivelVidaUtil(double p) => p >= 1.0
+    ? NivelAlerta.critica
+    : (p >= 0.85 ? NivelAlerta.advertencia : NivelAlerta.ok);
 
-NivelAlerta nivelAlmacenamiento(int pct) =>
-    pct > 90 ? NivelAlerta.critica : (pct >= 85 ? NivelAlerta.advertencia : NivelAlerta.ok);
+NivelAlerta nivelAlmacenamiento(int pct) => pct > 90
+    ? NivelAlerta.critica
+    : (pct >= 85 ? NivelAlerta.advertencia : NivelAlerta.ok);
 
-NivelAlerta nivelBateria(int pct) =>
-    pct < 60 ? NivelAlerta.critica : (pct < 80 ? NivelAlerta.advertencia : NivelAlerta.ok);
+NivelAlerta nivelBateria(int pct) => pct < 60
+    ? NivelAlerta.critica
+    : (pct < 80 ? NivelAlerta.advertencia : NivelAlerta.ok);
 
 // Una barra: valor 0..1, texto a mostrar y su color.
 class Indicador {
@@ -73,8 +80,16 @@ class Indicador {
 }
 
 // Vida útil siempre; almacenamiento y batería según la última revisión.
-List<Indicador> indicadores(Equipo equipo, List<Revision> revisiones, {DateTime? ahora}) {
-  final vida = porcentajeVidaUtil(equipo.fechaCompra, equipo.tipo.vidaUtilMeses, ahora: ahora);
+List<Indicador> indicadores(
+  Equipo equipo,
+  List<Revision> revisiones, {
+  DateTime? ahora,
+}) {
+  final vida = porcentajeVidaUtil(
+    equipo.fechaCompra,
+    equipo.tipo.vidaUtilMeses,
+    ahora: ahora,
+  );
   final lista = [
     Indicador(
       'Vida útil',
@@ -87,16 +102,25 @@ List<Indicador> indicadores(Equipo equipo, List<Revision> revisiones, {DateTime?
   final ultima = revisiones.first;
   final alm = porcentajeAlmacenamiento(equipo, ultima);
   if (alm != null) {
-    lista.add(Indicador(
-      'Almacenamiento',
-      (alm / 100).clamp(0.0, 1.0),
-      '${ultima.almacenamientoUsadoGb} de ${equipo.almacenamientoGb} GB ($alm%)',
-      nivelAlmacenamiento(alm),
-    ));
+    lista.add(
+      Indicador(
+        'Almacenamiento',
+        (alm / 100).clamp(0.0, 1.0),
+        '${ultima.almacenamientoUsadoGb} de ${equipo.almacenamientoGb} GB ($alm%)',
+        nivelAlmacenamiento(alm),
+      ),
+    );
   }
   final bat = ultima.bateriaPct;
   if (bat != null) {
-    lista.add(Indicador('Batería', (bat / 100).clamp(0.0, 1.0), '$bat%', nivelBateria(bat)));
+    lista.add(
+      Indicador(
+        'Batería',
+        (bat / 100).clamp(0.0, 1.0),
+        '$bat%',
+        nivelBateria(bat),
+      ),
+    );
   }
   return lista;
 }
@@ -108,11 +132,23 @@ Indicador indicadorMasPreocupante(List<Indicador> lista) =>
 // Sin revisiones o la última tiene más de 7 días.
 bool revisionPendiente(List<Revision> revisiones, {DateTime? ahora}) {
   if (revisiones.isEmpty) return true;
-  return (ahora ?? DateTime.now()).difference(revisiones.first.fecha).inDays > 7;
+  return (ahora ?? DateTime.now()).difference(revisiones.first.fecha).inDays >
+      7;
+}
+
+// Días que faltan para la próxima revisión semanal; null si ya está pendiente.
+int? diasParaRevision(List<Revision> revisiones, {DateTime? ahora}) {
+  if (revisionPendiente(revisiones, ahora: ahora)) return null;
+  return 7 -
+      (ahora ?? DateTime.now()).difference(revisiones.first.fecha).inDays;
 }
 
 // `revisiones` viene de la más reciente a la más antigua.
-List<Alerta> calcularAlertas(Equipo equipo, List<Revision> revisiones, {DateTime? ahora}) {
+List<Alerta> calcularAlertas(
+  Equipo equipo,
+  List<Revision> revisiones, {
+  DateTime? ahora,
+}) {
   final hoy = ahora ?? DateTime.now();
   final alertas = <Alerta>[];
 
@@ -121,13 +157,17 @@ List<Alerta> calcularAlertas(Equipo equipo, List<Revision> revisiones, {DateTime
     final alm = porcentajeAlmacenamiento(equipo, ultima);
     final bat = ultima.bateriaPct;
     if (alm != null && nivelAlmacenamiento(alm) != NivelAlerta.ok) {
-      alertas.add(Alerta(nivelAlmacenamiento(alm), 'Almacenamiento al $alm% (máx. 90%)'));
+      alertas.add(
+        Alerta(nivelAlmacenamiento(alm), 'Almacenamiento al $alm% (máx. 90%)'),
+      );
     }
     if (bat != null && nivelBateria(bat) != NivelAlerta.ok) {
       alertas.add(Alerta(nivelBateria(bat), 'Salud de batería al $bat%'));
     }
     if (ultima.sobrecalentamiento == true) {
-      alertas.add(const Alerta(NivelAlerta.advertencia, 'Se calienta en exceso'));
+      alertas.add(
+        const Alerta(NivelAlerta.advertencia, 'Se calienta en exceso'),
+      );
     }
   }
 
@@ -136,16 +176,30 @@ List<Alerta> calcularAlertas(Equipo equipo, List<Revision> revisiones, {DateTime
     final conMant = revisiones.where((r) => r.mantenimiento == true);
     final desde = conMant.isEmpty ? equipo.fechaCompra : conMant.first.fecha;
     if (hoy.difference(desde).inDays > 365) {
-      alertas.add(const Alerta(NivelAlerta.advertencia, 'Mantenimiento preventivo vencido'));
+      alertas.add(
+        const Alerta(
+          NivelAlerta.advertencia,
+          'Mantenimiento preventivo vencido',
+        ),
+      );
     }
   }
 
   final vida = nivelVidaUtil(
-      porcentajeVidaUtil(equipo.fechaCompra, equipo.tipo.vidaUtilMeses, ahora: hoy));
+    porcentajeVidaUtil(
+      equipo.fechaCompra,
+      equipo.tipo.vidaUtilMeses,
+      ahora: hoy,
+    ),
+  );
   if (vida == NivelAlerta.critica) {
-    alertas.add(const Alerta(NivelAlerta.critica, 'Superó su vida útil estimada'));
+    alertas.add(
+      const Alerta(NivelAlerta.critica, 'Superó su vida útil estimada'),
+    );
   } else if (vida == NivelAlerta.advertencia) {
-    alertas.add(const Alerta(NivelAlerta.advertencia, 'Cerca del fin de su vida útil'));
+    alertas.add(
+      const Alerta(NivelAlerta.advertencia, 'Cerca del fin de su vida útil'),
+    );
   }
   return alertas;
 }

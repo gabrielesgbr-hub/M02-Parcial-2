@@ -13,11 +13,10 @@ Future<bool?> mostrarDialogoAccesorio(
   BuildContext context, {
   required Equipo equipo,
   Accesorio? accesorio,
-}) =>
-    showDialog<bool>(
-      context: context,
-      builder: (_) => _DialogoAccesorio(equipo: equipo, accesorio: accesorio),
-    );
+}) => showDialog<bool>(
+  context: context,
+  builder: (_) => _DialogoAccesorio(equipo: equipo, accesorio: accesorio),
+);
 
 class _DialogoAccesorio extends StatefulWidget {
   const _DialogoAccesorio({required this.equipo, this.accesorio});
@@ -30,8 +29,9 @@ class _DialogoAccesorio extends StatefulWidget {
 }
 
 class _DialogoAccesorioState extends State<_DialogoAccesorio> {
-  late final _descripcion =
-      TextEditingController(text: widget.accesorio?.descripcion ?? '');
+  late final _descripcion = TextEditingController(
+    text: widget.accesorio?.descripcion ?? '',
+  );
   late TipoAccesorio _tipo =
       widget.accesorio?.tipo ?? widget.equipo.tipo.accesorios.first;
   late DateTime? _fecha = widget.accesorio?.fechaCompra;
@@ -91,7 +91,9 @@ class _DialogoAccesorioState extends State<_DialogoAccesorio> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.accesorio == null ? 'Nuevo accesorio' : 'Editar accesorio'),
+      title: Text(
+        widget.accesorio == null ? 'Nuevo accesorio' : 'Editar accesorio',
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -100,6 +102,8 @@ class _DialogoAccesorioState extends State<_DialogoAccesorio> {
             DropdownButtonFormField<TipoAccesorio>(
               initialValue: _tipo,
               isExpanded: true,
+              // Alto máximo: si no caben las opciones, el menú se desplaza.
+              menuMaxHeight: MediaQuery.sizeOf(context).height * 0.4,
               decoration: const InputDecoration(labelText: 'Tipo'),
               items: [
                 for (final t in widget.equipo.tipo.accesorios)
@@ -120,9 +124,11 @@ class _DialogoAccesorioState extends State<_DialogoAccesorio> {
                   child: OutlinedButton.icon(
                     onPressed: _elegirFecha,
                     icon: const Icon(Icons.event),
-                    label: Text(_fecha == null
-                        ? 'Fecha de compra'
-                        : formatearFecha(_fecha!)),
+                    label: Text(
+                      _fecha == null
+                          ? 'Fecha de compra'
+                          : formatearFecha(_fecha!),
+                    ),
                   ),
                 ),
                 if (_fecha != null)
@@ -136,14 +142,17 @@ class _DialogoAccesorioState extends State<_DialogoAccesorio> {
             const SizedBox(height: 12),
             const Text('Estado'),
             const SizedBox(height: 4),
-            SegmentedButton<EstadoAccesorio>(
-              showSelectedIcon: false,
-              segments: [
+            // Chips en Wrap: en diálogos angostos bajan de línea en vez de desbordarse.
+            Wrap(
+              spacing: 8,
+              children: [
                 for (final e in EstadoAccesorio.values)
-                  ButtonSegment(value: e, label: Text(e.etiqueta)),
+                  ChoiceChip(
+                    label: Text(e.etiqueta),
+                    selected: _estado == e,
+                    onSelected: (_) => setState(() => _estado = e),
+                  ),
               ],
-              selected: {_estado},
-              onSelectionChanged: (s) => setState(() => _estado = s.first),
             ),
           ],
         ),

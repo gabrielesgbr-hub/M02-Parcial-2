@@ -5,7 +5,11 @@ import 'alerta_chip.dart';
 
 // Barra de color según el nivel; `compacta` para la tarjeta de la lista.
 class BarraIndicador extends StatelessWidget {
-  const BarraIndicador({super.key, required this.indicador, this.compacta = false});
+  const BarraIndicador({
+    super.key,
+    required this.indicador,
+    this.compacta = false,
+  });
 
   final Indicador indicador;
   final bool compacta;
@@ -21,10 +25,12 @@ class BarraIndicador extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          // Wrap: si no cabe en una línea, el texto baja en vez de desbordarse.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 8,
             children: [
               Text(indicador.etiqueta, style: estilo),
-              const Spacer(),
               Text(indicador.texto, style: compacta ? estilo : null),
             ],
           ),

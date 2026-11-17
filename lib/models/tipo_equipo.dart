@@ -61,6 +61,8 @@ enum TipoEquipo {
       TipoAccesorio.teclado,
       TipoAccesorio.cableUsb,
       TipoAccesorio.funda,
+      TipoAccesorio.monitor,
+      TipoAccesorio.protectorPantalla,
     ],
   ),
   pc(
@@ -83,6 +85,7 @@ enum TipoEquipo {
       TipoAccesorio.teclado,
       TipoAccesorio.monitor,
       TipoAccesorio.cableUsb,
+      TipoAccesorio.funda,
     ],
   ),
   celular(
@@ -100,6 +103,8 @@ enum TipoEquipo {
       TipoAccesorio.cableUsb,
       TipoAccesorio.funda,
       TipoAccesorio.protectorPantalla,
+      TipoAccesorio.baseCarga,
+      TipoAccesorio.estucheCarga,
     ],
   ),
   tablet(
@@ -118,6 +123,9 @@ enum TipoEquipo {
       TipoAccesorio.funda,
       TipoAccesorio.protectorPantalla,
       TipoAccesorio.lapiz,
+      TipoAccesorio.teclado,
+      TipoAccesorio.mouse,
+      TipoAccesorio.baseCarga,
     ],
   ),
   reloj(
@@ -126,7 +134,12 @@ enum TipoEquipo {
     vidaUtilMeses: 42,
     camposFicha: {CampoFicha.numeroSerie},
     camposRevision: {CampoRevision.bateriaPct},
-    accesorios: [TipoAccesorio.baseCarga, TipoAccesorio.correa],
+    accesorios: [
+      TipoAccesorio.baseCarga,
+      TipoAccesorio.correa,
+      TipoAccesorio.cableUsb,
+      TipoAccesorio.protectorPantalla,
+    ],
   ),
   audifonos(
     etiqueta: 'Audífonos',
@@ -138,6 +151,8 @@ enum TipoEquipo {
       TipoAccesorio.estucheCarga,
       TipoAccesorio.cableUsb,
       TipoAccesorio.almohadillas,
+      TipoAccesorio.cargador,
+      TipoAccesorio.funda,
     ],
   );
 

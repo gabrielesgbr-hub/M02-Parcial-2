@@ -47,6 +47,13 @@ void main() {
   group('revisionPendiente', () {
     test('sin revisiones', () => expect(revisionPendiente([], ahora: ahora), isTrue));
 
+    test('días para la próxima revisión', () {
+      expect(diasParaRevision([rev(fecha: haceDias(2))], ahora: ahora), 5);
+      expect(diasParaRevision([rev(fecha: haceDias(7))], ahora: ahora), 0);
+      expect(diasParaRevision([rev(fecha: haceDias(8))], ahora: ahora), isNull);
+      expect(diasParaRevision([], ahora: ahora), isNull);
+    });
+
     test('7 días no, 8 sí', () {
       expect(revisionPendiente([rev(fecha: haceDias(7))], ahora: ahora), isFalse);
       expect(revisionPendiente([rev(fecha: haceDias(8))], ahora: ahora), isTrue);

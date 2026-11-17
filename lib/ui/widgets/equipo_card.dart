@@ -22,9 +22,12 @@ class EquipoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nivel = nivelGeneral(calcularAlertas(equipo, revisiones));
-    final detalle = [equipo.tipo.etiqueta, equipo.marca, equipo.modelo]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(' · ');
+    final dias = diasParaRevision(revisiones);
+    final detalle = [
+      equipo.tipo.etiqueta,
+      equipo.marca,
+      equipo.modelo,
+    ].where((s) => s != null && s.isNotEmpty).join(' · ');
     return Card(
       child: ListTile(
         onTap: onTap,
@@ -35,16 +38,31 @@ class EquipoCard extends StatelessWidget {
           children: [
             Text(detalle),
             BarraIndicador(
-              indicador: indicadorMasPreocupante(indicadores(equipo, revisiones)),
+              indicador: indicadorMasPreocupante(
+                indicadores(equipo, revisiones),
+              ),
               compacta: true,
             ),
-            if (revisionPendiente(revisiones))
+            if (dias == null)
               Text(
                 'Revisión pendiente',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.error,
+                ),
+              )
+            else
+              // Tono neutro: solo informa, no alerta.
+              Text(
+                switch (dias) {
+                  0 => 'Próxima revisión hoy',
+                  1 => 'Próxima revisión en 1 día',
+                  _ => 'Próxima revisión en $dias días',
+                },
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
           ],

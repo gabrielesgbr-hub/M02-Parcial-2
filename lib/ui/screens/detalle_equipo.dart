@@ -71,11 +71,13 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
         content: Text(texto),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Eliminar')),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Eliminar'),
+          ),
         ],
       ),
     );
@@ -96,43 +98,63 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
   }
 
   Future<void> _editar(Equipo e) async {
-    final r = await Navigator.pushNamed(context, Rutas.formEquipo, arguments: e);
+    final r = await Navigator.pushNamed(
+      context,
+      Rutas.formEquipo,
+      arguments: e,
+    );
     if (r == true) _recargar();
   }
 
   Future<void> _nuevaRevision(Equipo e) async {
-    final r = await Navigator.pushNamed(context, Rutas.formRevision, arguments: e);
+    final r = await Navigator.pushNamed(
+      context,
+      Rutas.formRevision,
+      arguments: e,
+    );
     if (r == true) _recargar();
   }
 
   Future<void> _eliminarEquipo(Equipo e) async {
-    if (!await _confirmar('Eliminar equipo',
-        '¿Eliminar "${e.nombre}" con sus revisiones y accesorios?')) {
+    if (!await _confirmar(
+      'Eliminar equipo',
+      '¿Eliminar "${e.nombre}" con sus revisiones y accesorios?',
+    )) {
       return;
     }
     final ok = await _intentar(
-        () => EquipoRepository().eliminar(e.id!), 'No se pudo eliminar el equipo');
+      () => EquipoRepository().eliminar(e.id!),
+      'No se pudo eliminar el equipo',
+    );
     if (ok && mounted) Navigator.pop(context, true);
   }
 
   Future<void> _eliminarRevision(Revision r) async {
-    if (!await _confirmar('Eliminar revisión',
-        '¿Eliminar la revisión del ${formatearFecha(r.fecha)}?')) {
+    if (!await _confirmar(
+      'Eliminar revisión',
+      '¿Eliminar la revisión del ${formatearFecha(r.fecha)}?',
+    )) {
       return;
     }
-    if (await _intentar(() => RevisionRepository().eliminar(r.id!),
-        'No se pudo eliminar la revisión')) {
+    if (await _intentar(
+      () => RevisionRepository().eliminar(r.id!),
+      'No se pudo eliminar la revisión',
+    )) {
       _recargar();
     }
   }
 
   Future<void> _eliminarAccesorio(Accesorio a) async {
     if (!await _confirmar(
-        'Eliminar accesorio', '¿Eliminar "${a.tipo.etiqueta}"?')) {
+      'Eliminar accesorio',
+      '¿Eliminar "${a.tipo.etiqueta}"?',
+    )) {
       return;
     }
-    if (await _intentar(() => AccesorioRepository().eliminar(a.id!),
-        'No se pudo eliminar el accesorio')) {
+    if (await _intentar(
+      () => AccesorioRepository().eliminar(a.id!),
+      'No se pudo eliminar el accesorio',
+    )) {
       _recargar();
     }
   }
@@ -173,7 +195,9 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
                       const Text('No se pudo cargar el equipo'),
                       const SizedBox(height: 12),
                       FilledButton(
-                          onPressed: _recargar, child: const Text('Reintentar')),
+                        onPressed: _recargar,
+                        child: const Text('Reintentar'),
+                      ),
                     ],
                   ),
                 ),
@@ -196,7 +220,11 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
     );
   }
 
-  Widget _contenido(Equipo e, List<Revision> revisiones, List<Accesorio> accesorios) {
+  Widget _contenido(
+    Equipo e,
+    List<Revision> revisiones,
+    List<Accesorio> accesorios,
+  ) {
     final tema = Theme.of(context);
     final alertas = calcularAlertas(e, revisiones);
     return Scaffold(
@@ -204,13 +232,15 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
         title: Text(e.nombre),
         actions: [
           IconButton(
-              tooltip: 'Editar',
-              icon: const Icon(Icons.edit),
-              onPressed: () => _editar(e)),
+            tooltip: 'Editar',
+            icon: const Icon(Icons.edit),
+            onPressed: () => _editar(e),
+          ),
           IconButton(
-              tooltip: 'Eliminar',
-              icon: const Icon(Icons.delete),
-              onPressed: () => _eliminarEquipo(e)),
+            tooltip: 'Eliminar',
+            icon: const Icon(Icons.delete),
+            onPressed: () => _eliminarEquipo(e),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -233,7 +263,10 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
           if (alertas.isEmpty)
             const Text('Sin alertas')
           else
-            Wrap(spacing: 8, children: [for (final a in alertas) AlertaChip(alerta: a)]),
+            Wrap(
+              spacing: 8,
+              children: [for (final a in alertas) AlertaChip(alerta: a)],
+            ),
           if (revisionPendiente(revisiones))
             const Padding(
               padding: EdgeInsets.only(top: 8),
@@ -267,29 +300,42 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
       ('Marca', e.marca),
       ('Modelo', e.modelo),
       ('Fecha de compra', formatearFecha(e.fechaCompra)),
-      if (c.contains(CampoFicha.numeroSerie)) ('Número de serie', e.numeroSerie),
+      if (c.contains(CampoFicha.numeroSerie))
+        ('Número de serie', e.numeroSerie),
       if (c.contains(CampoFicha.procesador)) ('Procesador', e.procesador),
-      if (c.contains(CampoFicha.ramGb)) ('RAM', e.ramGb == null ? null : '${e.ramGb} GB'),
+      if (c.contains(CampoFicha.ramGb))
+        ('RAM', e.ramGb == null ? null : '${e.ramGb} GB'),
       if (c.contains(CampoFicha.almacenamientoGb))
-        ('Almacenamiento',
-            e.almacenamientoGb == null ? null : '${e.almacenamientoGb} GB'),
+        (
+          'Almacenamiento',
+          e.almacenamientoGb == null ? null : '${e.almacenamientoGb} GB',
+        ),
       ('Notas', e.notas),
     ];
+    // Table: la columna de etiquetas toma el ancho de la más larga, sin partir palabras.
     return [
-      for (final (k, v) in filas)
-        if (v != null && v.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 130,
-                    child: Text(k, style: const TextStyle(fontWeight: FontWeight.w600))),
-                Expanded(child: Text(v)),
-              ],
-            ),
-          ),
+      Table(
+        columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+        children: [
+          for (final (k, v) in filas)
+            if (v != null && v.isNotEmpty)
+              TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, right: 16),
+                    child: Text(
+                      k,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(v),
+                  ),
+                ],
+              ),
+        ],
+      ),
     ];
   }
 
@@ -297,7 +343,8 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
     final pct = porcentajeVidaUtil(e.fechaCompra, e.tipo.vidaUtilMeses);
     final c = e.tipo.camposRevision;
     final usaRevision =
-        c.contains(CampoRevision.almacenamientoUsado) || c.contains(CampoRevision.bateriaPct);
+        c.contains(CampoRevision.almacenamientoUsado) ||
+        c.contains(CampoRevision.bateriaPct);
     return [
       Text('Indicadores', style: Theme.of(context).textTheme.titleMedium),
       Text('Etapa: ${etapaVida(pct).etiqueta}'),
@@ -305,7 +352,9 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
       if (revisiones.isEmpty && usaRevision)
         const Padding(
           padding: EdgeInsets.only(top: 8),
-          child: Text('Registra una revisión para ver almacenamiento y batería.'),
+          child: Text(
+            'Registra una revisión para ver almacenamiento y batería.',
+          ),
         ),
     ];
   }
@@ -313,11 +362,13 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
   String _resumen(Revision r) {
     final partes = <String>[
       r.limpieza ? 'Limpieza hecha' : 'Sin limpieza',
-      if (r.almacenamientoUsadoGb != null) 'Almac. ${r.almacenamientoUsadoGb} GB',
+      if (r.almacenamientoUsadoGb != null)
+        'Almac. ${r.almacenamientoUsadoGb} GB',
       if (r.bateriaPct != null) 'Batería ${r.bateriaPct}%',
       if (r.sobrecalentamiento == true) 'Se calienta',
       if (r.mantenimiento == true) 'Mantenimiento',
-      if (r.observaciones != null && r.observaciones!.isNotEmpty) r.observaciones!,
+      if (r.observaciones != null && r.observaciones!.isNotEmpty)
+        r.observaciones!,
     ];
     return partes.join(' · ');
   }
@@ -329,7 +380,12 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
         leading: foto != null && File(foto).existsSync()
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                child: Image.file(File(foto), width: 48, height: 48, fit: BoxFit.cover),
+                child: Image.file(
+                  File(foto),
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                ),
               )
             : const Icon(Icons.fact_check_outlined),
         title: Text(formatearFecha(r.fecha)),
@@ -351,12 +407,14 @@ class _PantallaDetalleEquipoState extends State<PantallaDetalleEquipo> {
       child: ListTile(
         onTap: () => _accesorio(e, a),
         title: Text(a.tipo.etiqueta),
-        subtitle: Text([
-          if (desc != null && desc.isNotEmpty) desc,
-          'Estado: ${a.estado.etiqueta}',
-          if (f != null) 'Compra: ${formatearFecha(f)}',
-          if (vida != null) 'Vida útil: ${etapaVida(vida).etiqueta}',
-        ].join('\n')),
+        subtitle: Text(
+          [
+            if (desc != null && desc.isNotEmpty) desc,
+            'Estado: ${a.estado.etiqueta}',
+            if (f != null) 'Compra: ${formatearFecha(f)}',
+            if (vida != null) 'Vida útil: ${etapaVida(vida).etiqueta}',
+          ].join('\n'),
+        ),
         isThreeLine: true,
         trailing: IconButton(
           tooltip: 'Eliminar accesorio',

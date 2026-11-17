@@ -66,9 +66,13 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
   // GB usados: entre 0 y el total registrado en la ficha.
   String? _validarGb(String? v) {
     final total = _equipo.almacenamientoGb;
-    if (total == null) return 'Registra el almacenamiento total en la ficha del equipo';
+    if (total == null) {
+      return 'Registra el almacenamiento total en la ficha del equipo';
+    }
     final n = int.tryParse(v?.trim() ?? '');
-    if (n == null || n < 0 || n > total) return 'Ingresa un valor entre 0 y $total GB';
+    if (n == null || n < 0 || n > total) {
+      return 'Ingresa un valor entre 0 y $total GB';
+    }
     return null;
   }
 
@@ -86,10 +90,12 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
       bateriaPct: campos.contains(CampoRevision.bateriaPct)
           ? int.parse(_bateria.text.trim())
           : null,
-      sobrecalentamiento:
-          campos.contains(CampoRevision.sobrecalentamiento) ? _calienta : null,
-      mantenimiento:
-          campos.contains(CampoRevision.mantenimiento) ? _mantenimiento : null,
+      sobrecalentamiento: campos.contains(CampoRevision.sobrecalentamiento)
+          ? _calienta
+          : null,
+      mantenimiento: campos.contains(CampoRevision.mantenimiento)
+          ? _mantenimiento
+          : null,
       observaciones: obs.isEmpty ? null : obs,
       fotoPath: _foto,
     );
@@ -116,61 +122,69 @@ class _PantallaFormRevisionState extends State<PantallaFormRevision> {
     final campos = _equipo.tipo.camposRevision;
     return Scaffold(
       appBar: AppBar(title: Text('Revisión de ${_equipo.nombre}')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            SwitchListTile(
-              title: const Text('Limpieza superficial'),
-              value: _limpieza,
-              onChanged: (v) => setState(() => _limpieza = v),
-            ),
-            if (campos.contains(CampoRevision.almacenamientoUsado))
-              TextFormField(
-                controller: _almacenamiento,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Almacenamiento usado (GB)',
-                  helperText:
-                      'Total: ${_equipo.almacenamientoGb ?? '?'} GB · máx. recomendado 90%',
-                ),
-                validator: _validarGb,
-              ),
-            if (campos.contains(CampoRevision.bateriaPct))
-              TextFormField(
-                controller: _bateria,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Salud de batería (%)',
-                  helperText: 'Menos de 80% indica desgaste',
-                ),
-                validator: _validarPct,
-              ),
-            if (campos.contains(CampoRevision.sobrecalentamiento))
+      // SafeArea: que la barra de navegación de Android no tape el botón Guardar.
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
               SwitchListTile(
-                title: const Text('Se calienta en exceso'),
-                value: _calienta,
-                onChanged: (v) => setState(() => _calienta = v),
+                title: const Text('Limpieza superficial'),
+                value: _limpieza,
+                onChanged: (v) => setState(() => _limpieza = v),
               ),
-            if (campos.contains(CampoRevision.mantenimiento))
-              SwitchListTile(
-                title: const Text('Se hizo mantenimiento preventivo'),
-                subtitle: const Text('Recomendado al menos una vez al año'),
-                value: _mantenimiento,
-                onChanged: (v) => setState(() => _mantenimiento = v),
+              if (campos.contains(CampoRevision.almacenamientoUsado))
+                TextFormField(
+                  controller: _almacenamiento,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Almacenamiento usado (GB)',
+                    helperMaxLines: 2,
+                    errorMaxLines: 2,
+                    helperText:
+                        'Total: ${_equipo.almacenamientoGb ?? '?'} GB · máx. recomendado 90%',
+                  ),
+                  validator: _validarGb,
+                ),
+              if (campos.contains(CampoRevision.bateriaPct))
+                TextFormField(
+                  controller: _bateria,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Salud de batería (%)',
+                    helperText: 'Menos de 80% indica desgaste',
+                  ),
+                  validator: _validarPct,
+                ),
+              if (campos.contains(CampoRevision.sobrecalentamiento))
+                SwitchListTile(
+                  title: const Text('Se calienta en exceso'),
+                  value: _calienta,
+                  onChanged: (v) => setState(() => _calienta = v),
+                ),
+              if (campos.contains(CampoRevision.mantenimiento))
+                SwitchListTile(
+                  title: const Text('Se hizo mantenimiento preventivo'),
+                  subtitle: const Text('Recomendado al menos una vez al año'),
+                  value: _mantenimiento,
+                  onChanged: (v) => setState(() => _mantenimiento = v),
+                ),
+              const SizedBox(height: 12),
+              CampoDictado(
+                controller: _observaciones,
+                etiqueta: 'Observaciones',
               ),
-            const SizedBox(height: 12),
-            CampoDictado(controller: _observaciones, etiqueta: 'Observaciones'),
-            const SizedBox(height: 12),
-            FotoPicker(fotoPath: _foto, onCambio: _cambiarFoto),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _guardando ? null : _guardar,
-              icon: const Icon(Icons.save),
-              label: const Text('Guardar revisión'),
-            ),
-          ],
+              const SizedBox(height: 12),
+              FotoPicker(fotoPath: _foto, onCambio: _cambiarFoto),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _guardando ? null : _guardar,
+                icon: const Icon(Icons.save),
+                label: const Text('Guardar revisión'),
+              ),
+            ],
+          ),
         ),
       ),
     );

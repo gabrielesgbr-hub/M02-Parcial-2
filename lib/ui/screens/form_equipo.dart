@@ -61,7 +61,14 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
   @override
   void dispose() {
     for (final c in [
-      _nombre, _marca, _modelo, _serie, _procesador, _ram, _almacenamiento, _notas
+      _nombre,
+      _marca,
+      _modelo,
+      _serie,
+      _procesador,
+      _ram,
+      _almacenamiento,
+      _notas,
     ]) {
       c.dispose();
     }
@@ -76,7 +83,9 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
     final anterior = _foto;
     setState(() => _foto = nueva);
     // Si la anterior era una nueva (no la original), se descarta.
-    if (anterior != _original?.fotoPath) await MediaService().eliminarFoto(anterior);
+    if (anterior != _original?.fotoPath) {
+      await MediaService().eliminarFoto(anterior);
+    }
   }
 
   Future<void> _elegirFecha() async {
@@ -121,7 +130,9 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
       modelo: _texto(_modelo),
       numeroSerie: _texto(_serie, campos.contains(CampoFicha.numeroSerie)),
       procesador: _texto(_procesador, campos.contains(CampoFicha.procesador)),
-      ramGb: campos.contains(CampoFicha.ramGb) ? int.tryParse(_ram.text.trim()) : null,
+      ramGb: campos.contains(CampoFicha.ramGb)
+          ? int.tryParse(_ram.text.trim())
+          : null,
       almacenamientoGb: campos.contains(CampoFicha.almacenamientoGb)
           ? int.tryParse(_almacenamiento.text.trim())
           : null,
@@ -156,14 +167,17 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Widget _numero(TextEditingController c, String etiqueta, {bool obligatorio = false}) =>
-      TextFormField(
-        controller: c,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(labelText: etiqueta),
-        validator: (v) => _validarEntero(v, obligatorio: obligatorio),
-      );
+  Widget _numero(
+    TextEditingController c,
+    String etiqueta, {
+    bool obligatorio = false,
+  }) => TextFormField(
+    controller: c,
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+    decoration: InputDecoration(labelText: etiqueta),
+    validator: (v) => _validarEntero(v, obligatorio: obligatorio),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -172,92 +186,114 @@ class _PantallaFormEquipoState extends State<PantallaFormEquipo> {
     const sep = SizedBox(height: 12);
     return Scaffold(
       appBar: AppBar(title: Text(editando ? 'Editar equipo' : 'Nuevo equipo')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            DropdownButtonFormField<TipoEquipo>(
-              initialValue: _tipo,
-              decoration: const InputDecoration(labelText: 'Tipo de equipo'),
-              items: [
-                for (final t in TipoEquipo.values)
-                  DropdownMenuItem(value: t, child: Text(t.etiqueta)),
-              ],
-              // Al editar el tipo no se puede cambiar.
-              onChanged: editando ? null : (t) => setState(() => _tipo = t ?? _tipo),
-            ),
-            sep,
-            TextFormField(
-              controller: _nombre,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-              validator: (v) =>
-                  (v ?? '').trim().isEmpty ? 'El nombre es obligatorio' : null,
-            ),
-            sep,
-            TextFormField(
-              controller: _marca,
-              decoration: const InputDecoration(labelText: 'Marca'),
-            ),
-            sep,
-            TextFormField(
-              controller: _modelo,
-              decoration: const InputDecoration(labelText: 'Modelo'),
-            ),
-            if (campos.contains(CampoFicha.numeroSerie)) ...[
+      // SafeArea: que la barra de navegación de Android no tape el botón Guardar.
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              DropdownButtonFormField<TipoEquipo>(
+                initialValue: _tipo,
+                isExpanded: true,
+                // Alto máximo: si no caben las opciones, el menú se desplaza.
+                menuMaxHeight: MediaQuery.sizeOf(context).height * 0.4,
+                decoration: const InputDecoration(labelText: 'Tipo de equipo'),
+                items: [
+                  for (final t in TipoEquipo.values)
+                    DropdownMenuItem(value: t, child: Text(t.etiqueta)),
+                ],
+                // Al editar el tipo no se puede cambiar.
+                onChanged: editando
+                    ? null
+                    : (t) => setState(() => _tipo = t ?? _tipo),
+              ),
               sep,
               TextFormField(
-                controller: _serie,
-                decoration: const InputDecoration(labelText: 'Número de serie'),
+                controller: _nombre,
+                decoration: const InputDecoration(labelText: 'Nombre'),
                 validator: (v) => (v ?? '').trim().isEmpty
-                    ? 'El número de serie es obligatorio'
+                    ? 'El nombre es obligatorio'
                     : null,
               ),
-            ],
-            if (campos.contains(CampoFicha.procesador)) ...[
               sep,
               TextFormField(
-                controller: _procesador,
-                decoration: const InputDecoration(labelText: 'Procesador'),
+                controller: _marca,
+                decoration: const InputDecoration(labelText: 'Marca'),
               ),
-            ],
-            if (campos.contains(CampoFicha.ramGb)) ...[sep, _numero(_ram, 'RAM (GB)')],
-            if (campos.contains(CampoFicha.almacenamientoGb)) ...[
               sep,
-              _numero(_almacenamiento, 'Almacenamiento total (GB)', obligatorio: true),
-            ],
-            sep,
-            OutlinedButton.icon(
-              onPressed: _elegirFecha,
-              icon: const Icon(Icons.event),
-              label: Text(_fecha == null
-                  ? 'Fecha de compra'
-                  : 'Compra: ${formatearFecha(_fecha!)}'),
-            ),
-            if (_fechaInvalida)
-              Padding(
-                padding: const EdgeInsets.only(top: 6, left: 12),
-                child: Text(
-                  'La fecha de compra es obligatoria',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.error, fontSize: 12),
+              TextFormField(
+                controller: _modelo,
+                decoration: const InputDecoration(labelText: 'Modelo'),
+              ),
+              if (campos.contains(CampoFicha.numeroSerie)) ...[
+                sep,
+                TextFormField(
+                  controller: _serie,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de serie',
+                  ),
+                  validator: (v) => (v ?? '').trim().isEmpty
+                      ? 'El número de serie es obligatorio'
+                      : null,
+                ),
+              ],
+              if (campos.contains(CampoFicha.procesador)) ...[
+                sep,
+                TextFormField(
+                  controller: _procesador,
+                  decoration: const InputDecoration(labelText: 'Procesador'),
+                ),
+              ],
+              if (campos.contains(CampoFicha.ramGb)) ...[
+                sep,
+                _numero(_ram, 'RAM (GB)'),
+              ],
+              if (campos.contains(CampoFicha.almacenamientoGb)) ...[
+                sep,
+                _numero(
+                  _almacenamiento,
+                  'Almacenamiento total (GB)',
+                  obligatorio: true,
+                ),
+              ],
+              sep,
+              OutlinedButton.icon(
+                onPressed: _elegirFecha,
+                icon: const Icon(Icons.event),
+                label: Text(
+                  _fecha == null
+                      ? 'Fecha de compra'
+                      : 'Compra: ${formatearFecha(_fecha!)}',
                 ),
               ),
-            sep,
-            FotoPicker(
-              fotoPath: _foto,
-              onCambio: _cambiarFoto,
-              iconoVacio: _tipo.icono,
-            ),
-            sep,
-            CampoDictado(controller: _notas, etiqueta: 'Notas'),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _guardando ? null : _guardar,
-              icon: const Icon(Icons.save),
-              label: const Text('Guardar'),
-            ),
-          ],
+              if (_fechaInvalida)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, left: 12),
+                  child: Text(
+                    'La fecha de compra es obligatoria',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              sep,
+              FotoPicker(
+                fotoPath: _foto,
+                onCambio: _cambiarFoto,
+                iconoVacio: _tipo.icono,
+              ),
+              sep,
+              CampoDictado(controller: _notas, etiqueta: 'Notas'),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _guardando ? null : _guardar,
+                icon: const Icon(Icons.save),
+                label: const Text('Guardar'),
+              ),
+            ],
+          ),
         ),
       ),
     );
